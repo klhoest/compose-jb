@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.codeviewer.platform.File
 import org.jetbrains.codeviewer.util.EmptyTextLines
 import org.jetbrains.codeviewer.util.SingleSelection
+import org.jetbrains.codeviewer.util.TextLines
 
 class Editor(
     val fileName: String,
@@ -35,44 +36,34 @@ class Editor(
 fun Editor(file: File) = Editor(
     fileName = file.name
 ) { backgroundScope ->
-    if (file.name.startsWith("deviantart")) {
-        println("failure for ${file.name}")
-        val state = mutableStateOf(" ")
-        val imageContent = Editor.Content(state, false)
-        object : Editor.Lines {
-            override val size get() = 0
-
-            override fun get(index: Int) = Editor.Line(
-                number = index + 1,
-                content = imageContent
-            )
-        }
+    val textLines: TextLines = if (file.name.startsWith("deviantart")) {
+        file.process(backgroundScope)
     } else {
-        val textLines = try {
+        try {
             file.readLines(backgroundScope)
         } catch (e: Throwable) {
             e.printStackTrace()
             EmptyTextLines
         }
-        val isCode = file.name.endsWith(".kt", ignoreCase = true)
+    }
+    val isCode = file.name.endsWith(".kt", ignoreCase = true)
 
-        fun content(index: Int): Editor.Content {
-            val text = textLines.get(index)
-                .trim('\n') // fix for native crash in Skia.
-            // Workaround for another Skia problem with empty line layout.
-            // TODO: maybe use another symbols, i.e. \u2800 or \u00a0.
-            val state = mutableStateOf(if (text.isEmpty()) " " else text)
-            return Editor.Content(state, isCode)
-        }
+    fun content(index: Int): Editor.Content {
+        val text = textLines.get(index)
+            .trim('\n') // fix for native crash in Skia.
+        // Workaround for another Skia problem with empty line layout.
+        // TODO: maybe use another symbols, i.e. \u2800 or \u00a0.
+        val state = mutableStateOf(if (text.isEmpty()) " " else text)
+        return Editor.Content(state, isCode)
+    }
 
-        object : Editor.Lines {
-            override val size get() = textLines.size
+    object : Editor.Lines {
+        override val size get() = textLines.size
 
-            override fun get(index: Int) = Editor.Line(
-                number = index + 1,
-                content = content(index)
-            )
-        }
+        override fun get(index: Int) = Editor.Line(
+            number = index + 1,
+            content = content(index)
+        )
     }
 
 

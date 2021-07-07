@@ -1,3 +1,5 @@
+package org.jetbrains.codeviewer.platform
+
 object ImageProcess {
 
     fun launch(webId: String): List<String> {

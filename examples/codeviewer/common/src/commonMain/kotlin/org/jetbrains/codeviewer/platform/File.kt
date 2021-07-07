@@ -12,4 +12,5 @@ interface File {
     val hasChildren: Boolean
 
     fun readLines(scope: CoroutineScope): TextLines
+    fun process(scope: CoroutineScope): TextLines
 }

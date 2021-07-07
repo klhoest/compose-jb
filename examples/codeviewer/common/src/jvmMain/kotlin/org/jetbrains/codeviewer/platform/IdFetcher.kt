@@ -1,3 +1,5 @@
+package org.jetbrains.codeviewer.platform
+
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.HttpFetcher
 import it.skrape.fetcher.extractIt

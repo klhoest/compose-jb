@@ -69,6 +69,30 @@ fun java.io.File.toProjectFile(): File = object : File {
             }
         }
     }
+
+    override fun process(scope: CoroutineScope): TextLines {
+        var size by mutableStateOf(0)
+        var text by mutableStateOf("noTag")
+        scope.launch(Dispatchers.IO) {
+            val fileName = this@toProjectFile.name
+            try {
+                if (fileName.startsWith("deviantart") == false)
+                    throw IllegalArgumentException("the fileName does not start with deviantart")
+                val daId = fileName.split('_')[1]
+                val tagList = ImageProcess.launch(daId)
+                size = tagList.size
+                text = tagList.reduce{ acc, s -> "$acc, $s" }
+            } catch (e: Exception) {
+                println("failure for ${fileName}, ${e.message}")
+                size = 1
+                text = "failure for ${fileName}, ${e.message}"
+            }
+        }
+        return object : TextLines {
+            override val size get() = size
+            override fun get(index: Int): String = text
+        }
+    }
 }
 
 private fun java.io.File.readLinePositions(
