@@ -17,6 +17,11 @@ kotlin {
                 api(compose.foundation)
                 api(compose.material)
                 api(compose.materialIconsExtended)
+                api("it.skrape:skrapeit:1.1.1")
+                api("it.skrape:skrapeit-http-fetcher:1.1.1")
+                api("io.ktor:ktor-client-core:1.5.3")
+                api("io.ktor:ktor-client-cio:1.5.3")
+                api("io.ktor:ktor-client-serialization:1.5.3")
             }
         }
         named("androidMain") {
