@@ -19,6 +19,11 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     implementation(compose.desktop.currentOs)
+    implementation("it.skrape:skrapeit:1.1.1")
+    implementation("it.skrape:skrapeit-http-fetcher:1.1.1")
+    implementation("io.ktor:ktor-client-core:1.5.3")
+    implementation("io.ktor:ktor-client-cio:1.5.3")
+    implementation("io.ktor:ktor-client-serialization:1.5.3")
 }
 
 tasks.test {
