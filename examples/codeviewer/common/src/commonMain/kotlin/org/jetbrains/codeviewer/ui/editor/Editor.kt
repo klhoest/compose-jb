@@ -36,29 +36,30 @@ class Editor(
 fun Editor(file: File) = Editor(
     fileName = file.name
 ) { backgroundScope ->
-    val textLines: TextLines = if (file.name.startsWith("deviantart")) {
-        file.process(backgroundScope)
-    } else {
-        try {
-            file.readLines(backgroundScope)
-        } catch (e: Throwable) {
-            e.printStackTrace()
-            EmptyTextLines
-        }
+    val textLines: TextLines = try {
+        file.readLines(backgroundScope)
+    } catch (e: Throwable) {
+        e.printStackTrace()
+        EmptyTextLines
     }
     val isCode = file.name.endsWith(".kt", ignoreCase = true)
+    val textSize = textLines.size
+    val resultList = StringBuilder("")
+    for (i in 0..textSize) {
+        val authorTag = textLines.get(i).trim('\n')
+        file.matchFavAndAuthor(authorTag)?.let {
+            resultList.append("$it, ")
+        }
+    }
 
     fun content(index: Int): Editor.Content {
-        val text = textLines.get(index)
-            .trim('\n') // fix for native crash in Skia.
-        // Workaround for another Skia problem with empty line layout.
         // TODO: maybe use another symbols, i.e. \u2800 or \u00a0.
-        val state = mutableStateOf(if (text.isEmpty()) " " else text)
+        val state = mutableStateOf(if (resultList.isEmpty()) " " else resultList.toString())
         return Editor.Content(state, isCode)
     }
 
     object : Editor.Lines {
-        override val size get() = textLines.size
+        override val size get() = 3
 
         override fun get(index: Int) = Editor.Line(
             number = index + 1,

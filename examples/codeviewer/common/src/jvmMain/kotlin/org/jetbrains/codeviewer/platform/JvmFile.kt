@@ -70,13 +70,16 @@ fun java.io.File.toProjectFile(): File = object : File {
         }
     }
 
+    override fun matchFavAndAuthor(authorTag: String): String? =
+        FavTagList.matchAuthAndFav(authorTag)
+
     override fun process(scope: CoroutineScope): TextLines {
         var size by mutableStateOf(0)
         var text by mutableStateOf("noTag")
         scope.launch(Dispatchers.IO) {
             val fileName = this@toProjectFile.name
             try {
-                if (fileName.startsWith("deviantart") == false)
+                if (!fileName.startsWith("deviantart") && !fileName.startsWith("da"))
                     throw IllegalArgumentException("the fileName does not start with deviantart")
                 val daId = fileName.split('_')[1]
                 val tagList = ImageProcess.launch(daId)

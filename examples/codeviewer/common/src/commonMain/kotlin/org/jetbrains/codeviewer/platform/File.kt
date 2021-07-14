@@ -13,4 +13,5 @@ interface File {
 
     fun readLines(scope: CoroutineScope): TextLines
     fun process(scope: CoroutineScope): TextLines
+    fun matchFavAndAuthor(authorTag: String): String?
 }
