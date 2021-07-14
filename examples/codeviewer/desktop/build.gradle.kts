@@ -37,6 +37,12 @@ compose.desktop {
                 // Use -Pcompose.desktop.mac.sign=true to sign and notarize.
                 bundleID = "com.jetbrains.compose.codeviewer"
             }
+
+            linux {
+                // a version for all Linux distributables
+                packageVersion = "1.0.0"
+                // a version only for the deb package
+            }
         }
     }
 }

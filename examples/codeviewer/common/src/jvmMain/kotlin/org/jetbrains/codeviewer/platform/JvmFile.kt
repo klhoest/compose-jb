@@ -80,6 +80,7 @@ fun java.io.File.toProjectFile(): File = object : File {
                     throw IllegalArgumentException("the fileName does not start with deviantart")
                 val daId = fileName.split('_')[1]
                 val tagList = ImageProcess.launch(daId)
+                //val tagList = listOf<String>()
                 size = tagList.size
                 text = tagList.reduce{ acc, s -> "$acc, $s" }
             } catch (e: Exception) {
