@@ -10,10 +10,7 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -23,27 +20,28 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.Flow
 import org.jetbrains.codeviewer.platform.VerticalScrollbar
 import org.jetbrains.codeviewer.ui.common.AppTheme
 import org.jetbrains.codeviewer.ui.common.Fonts
 import org.jetbrains.codeviewer.ui.common.Settings
-import org.jetbrains.codeviewer.util.loadableScoped
 import org.jetbrains.codeviewer.util.withoutWidthConstraints
 import kotlin.text.Regex.Companion.fromLiteral
 
 @Composable
-fun EditorView(model: Editor, settings: Settings) = key(model) {
+fun EditorView(model: Editor, settings: Settings) {
     with (LocalDensity.current) {
         SelectionContainer {
             Surface(
                 Modifier.fillMaxSize(),
                 color = AppTheme.colors.backgroundDark,
             ) {
-                val lines by loadableScoped(model.lines)
+                //val lines by loadableScoped(model.lines)
+                val lines :List<String> by model.launch().collectAsState(listOf())
 
-                if (lines != null) {
+                if (lines.isEmpty() == false) {
                     Box {
-                        Lines(lines!!, settings)
+                        Lines(lines, settings)
                         Box(
                             Modifier
                                 .offset(
@@ -67,10 +65,11 @@ fun EditorView(model: Editor, settings: Settings) = key(model) {
 }
 
 @Composable
-private fun Lines(lines: Editor.Lines, settings: Settings) = with(LocalDensity.current) {
-    val maxNum = remember(lines.lineNumberDigitCount) {
+private fun Lines(lines: List<String>, settings: Settings) = with(LocalDensity.current) {
+    val maxNum = "3"
+        /*remember(lines.lineNumberDigitCount) {
         (1..lines.lineNumberDigitCount).joinToString(separator = "") { "9" }
-    }
+    }*/
 
     Box(Modifier.fillMaxSize()) {
         val scrollState = rememberLazyListState()
@@ -82,7 +81,7 @@ private fun Lines(lines: Editor.Lines, settings: Settings) = with(LocalDensity.c
         ) {
             items(lines.size) { index ->
                 Box(Modifier.height(lineHeight)) {
-                    Line(Modifier.align(Alignment.CenterStart), maxNum, lines[index], settings)
+                    Line(Modifier.align(Alignment.CenterStart), maxNum, lines[index], index, settings)
                 }
             }
         }
@@ -100,16 +99,16 @@ private fun Lines(lines: Editor.Lines, settings: Settings) = with(LocalDensity.c
 // دعم اللغة العربية
 // 中文支持
 @Composable
-private fun Line(modifier: Modifier, maxNum: String, line: Editor.Line, settings: Settings) {
+private fun Line(modifier: Modifier, maxNum: String, line: String, pos:Int,  settings: Settings) {
     Row(modifier = modifier) {
         DisableSelection {
             Box {
-                LineNumber(maxNum, Modifier.alpha(0f), settings)
-                LineNumber(line.number.toString(), Modifier.align(Alignment.CenterEnd), settings)
+                //LineNumber(maxNum, Modifier.alpha(0f), settings)
+                LineNumber(pos.toString(), Modifier.align(Alignment.CenterEnd), settings)
             }
         }
         LineContent(
-            line.content,
+            line,
             modifier = Modifier
                 .weight(1f)
                 .withoutWidthConstraints()
@@ -129,16 +128,13 @@ private fun LineNumber(number: String, modifier: Modifier, settings: Settings) =
 )
 
 @Composable
-private fun LineContent(content: Editor.Content, modifier: Modifier, settings: Settings) = Text(
-    text = if (content.isCode) {
-        codeString(content.value.value)
-    } else {
+private fun LineContent(content: String, modifier: Modifier, settings: Settings) = Text(
+    text =
         buildAnnotatedString {
             withStyle(AppTheme.code.simple) {
-                append(content.value.value)
+                append(content)
             }
-        }
-    },
+        },
     fontSize = settings.fontSize,
     fontFamily = Fonts.jetbrainsMono(),
     modifier = modifier,

@@ -1,6 +1,8 @@
 package org.jetbrains.codeviewer.ui.editor
 
 import androidx.compose.runtime.mutableStateListOf
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.jetbrains.codeviewer.platform.File
 import org.jetbrains.codeviewer.util.SingleSelection
 
@@ -18,6 +20,7 @@ class Editors {
         editor.close = {
             close(editor)
         }
+        //editor.bind()
         editors.add(editor)
         editor.activate()
     }

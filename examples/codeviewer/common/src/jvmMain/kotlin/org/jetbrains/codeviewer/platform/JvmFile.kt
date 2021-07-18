@@ -4,11 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.flow
 import org.jetbrains.codeviewer.util.TextLines
-import java.io.FileInputStream
-import java.io.FilenameFilter
-import java.io.IOException
-import java.io.RandomAccessFile
+import java.io.*
 import java.nio.channels.FileChannel
 import java.nio.charset.StandardCharsets
 
@@ -26,6 +24,15 @@ fun java.io.File.toProjectFile(): File = object : File {
     override val hasChildren: Boolean
         get() = isDirectory && listFiles()?.size ?: 0 > 0
 
+    override fun readLines() = flow {
+        val br = BufferedReader(FileReader(this@toProjectFile));
+
+        var st : String? = ""
+        while (st != null) {
+            st = br.readLine()
+            st?.let { emit(it) }
+        }
+    }
 
     override fun readLines(scope: CoroutineScope): TextLines {
         var byteBufferSize: Int
